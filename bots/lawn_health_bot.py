@@ -15,8 +15,8 @@ class LawnHealthBot:
     Input:
     - Health Score: [0-100]
     - Gesund: [%]
-    - Drought Stress: [%]
-    - Bare/Moss: [%]
+    - Trockenstress: [%]
+    - Kahle Stellen/Moos: [%]
 
     Format:
     1. Gesamtbewertung (Skala 1–10) + kurze Begründung
@@ -35,7 +35,7 @@ class LawnHealthBot:
         message = f"""
         Health Score: {analysis_data["health_score"]}/100
         Gesund: {analysis_data["healthy_percentage"]}%
-        Drought Stress: {analysis_data["stress_percentage"]}%
-        Bare/Moss: {analysis_data["problematic_percentage"]}%
+        Trockenstress: {analysis_data["stress_percentage"]}%
+        Kahle Stellen/Moos: {analysis_data["problematic_percentage"]}%
         """
         return self.llm.chat(message, self.system_prompt, [])
