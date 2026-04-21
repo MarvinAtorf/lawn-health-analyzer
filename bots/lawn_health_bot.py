@@ -31,3 +31,11 @@ class LawnHealthBot:
     - Gib nur Empfehlungen, die realistisch umsetzbar sind
     - Maximal 300–400 Wörter"""
 
+    def get_recommendations(self, analysis_data: dict) -> str:
+        message = f"""
+        Health Score: {analysis_data["health_score"]}/100
+        Gesund: {analysis_data["healthy_percentage"]}%
+        Drought Stress: {analysis_data["stress_percentage"]}%
+        Bare/Moss: {analysis_data["problematic_percentage"]}%
+        """
+        return self.llm.chat(message, self.system_prompt, [])
