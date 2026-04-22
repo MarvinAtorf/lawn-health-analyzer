@@ -7,6 +7,12 @@ from modules.video_processor import VideoProcessor
 from modules.analysis import LawnAnalyzer
 from modules.lawn_visualizer import LawnVisualizer
 
+if 'analysis_data' not in st.session_state:
+    st.session_state['analysis_data'] = None
+
+if 'recommendations' not in st.session_state:
+    st.session_state['recommendations'] = None
+
 load_dotenv()
 api_key = os.getenv("ANTHROPIC_API_KEY")
 llm = ClaudeServiceSync(api_key=api_key)
