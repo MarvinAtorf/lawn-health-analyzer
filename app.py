@@ -37,7 +37,7 @@ if file is not None:
                 st.session_state['analysis_data']
             )
 
-if 'analysis_data' in st.session_state:
+if st.session_state['analysis_data'] is not None:
     analysis_data = st.session_state['analysis_data']
     recommendations = st.session_state['recommendations']
 
