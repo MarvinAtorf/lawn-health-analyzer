@@ -32,4 +32,11 @@ if file is not None:
         visualizer = LawnVisualizer()
         visualizer.show_metrics(analysis_data)
         visualizer.show_chart(analysis_data)
+        segmented = visualizer.create_segmented_frame(
+            analysis_data['sample_frame'],
+            analysis_data['mask_healthy'],
+            analysis_data['mask_stress'],
+            analysis_data['mask_bare']
+        )
+        visualizer.show_frames(analysis_data['sample_frame'], segmented)
         st.write(recommendations)
