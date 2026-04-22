@@ -24,19 +24,32 @@ if file is not None:
 
         with st.spinner("Rasen wird analysiert..."):
             analyzer = LawnAnalyzer()
-            analysis_data = analyzer.analyze_frames(frames)
+            st.session_state['analysis_data'] = analyzer.analyze_frames(frames)
 
         with st.spinner("Greenkeeper analysiert..."):
-            recommendations = bot.get_recommendations(analysis_data)
+            st.session_state['recommendations'] = bot.get_recommendations(
+                st.session_state['analysis_data']
+            )
 
-        visualizer = LawnVisualizer()
-        visualizer.show_metrics(analysis_data)
-        visualizer.show_chart(analysis_data)
-        segmented = visualizer.create_segmented_frame(
-            analysis_data['sample_frame'],
-            analysis_data['mask_healthy'],
-            analysis_data['mask_stress'],
-            analysis_data['mask_bare']
-        )
-        visualizer.show_frames(analysis_data['sample_frame'], segmented)
-        st.write(recommendations)
+if 'analysis_data' in st.session_state:
+    analysis_data = st.session_state['analysis_data']
+    recommendations = st.session_state['recommendations']
+
+    visualizer = LawnVisualizer()
+    visualizer.show_metrics(analysis_data)
+    visualizer.show_chart(analysis_data)
+
+    frame_index = st.slider(
+        "Frame auswählen",
+        min_value=0,
+        max_value=len(analysis_data['all_frames']) - 1,
+        value=0
+    )
+    segmented = visualizer.create_segmented_frame(
+        analysis_data['all_frames'][frame_index],
+        analysis_data['all_masks_healthy'][frame_index],
+        analysis_data['all_masks_stress'][frame_index],
+        analysis_data['all_masks_bare'][frame_index]
+    )
+    visualizer.show_frames(analysis_data['all_frames'][frame_index], segmented)
+    st.write(recommendations)

@@ -15,11 +15,10 @@ class LawnAnalyzer:
         lower_bare = np.array([0, 0, 50])
         upper_bare = np.array([180, 40, 255])
 
-        sample_frame = None
-        sample_mask_healthy = None
-        sample_mask_stress = None
-        sample_mask_bare = None
-
+        all_frames = []
+        all_masks_healthy = []
+        all_masks_stress = []
+        all_masks_bare = []
 
         for frame in frames:
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -28,12 +27,10 @@ class LawnAnalyzer:
             mask_stress = cv2.inRange(hsv, lower_stress, upper_stress)
             mask_bare = cv2.inRange(hsv, lower_bare, upper_bare)
 
-
-            if sample_frame is None:
-                sample_frame = frame
-                sample_mask_healthy = mask_healthy
-                sample_mask_stress = mask_stress
-                sample_mask_bare = mask_bare
+            all_frames.append(frame)
+            all_masks_healthy.append(mask_healthy)
+            all_masks_stress.append(mask_stress)
+            all_masks_bare.append(mask_bare)
 
 
             total_healthy += cv2.countNonZero(mask_healthy)
@@ -53,8 +50,8 @@ class LawnAnalyzer:
             'stress_pct': stress_pct,
             'bare_pct': bare_pct,
             'health_score': health_score,
-            'sample_frame': sample_frame ,
-            'mask_healthy': sample_mask_healthy ,
-            'mask_stress': sample_mask_stress ,
-            'mask_bare': sample_mask_bare
+            'all_frames': all_frames,
+            'all_masks_healthy': all_masks_healthy,
+            'all_masks_stress': all_masks_stress,
+            'all_masks_bare': all_masks_bare
         }
