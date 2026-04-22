@@ -34,8 +34,8 @@ class LawnHealthBot:
     def get_recommendations(self, analysis_data: dict) -> str:
         message = f"""
         Health Score: {analysis_data["health_score"]}/100
-        Gesund: {analysis_data["healthy_percentage"]}%
-        Trockenstress: {analysis_data["stress_percentage"]}%
-        Kahle Stellen/Moos: {analysis_data["problematic_percentage"]}%
+        Gesund: {analysis_data["healthy_pct"]}%
+        Trockenstress: {analysis_data["stress_pct"]}%
+        Kahle Stellen/Moos: {analysis_data["bare_pct"]}%
         """
         return self.llm.chat(message, self.system_prompt, [])
