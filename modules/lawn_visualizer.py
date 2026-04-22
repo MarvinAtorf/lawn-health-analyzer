@@ -53,4 +53,6 @@ class LawnVisualizer:
         segmented = np.zeros_like(frame)
         segmented[mask_healthy > 0] = [46, 204, 113]
         segmented[mask_healthy > 0] = [46, 204, 113]
+        segmented[mask_stress > 0] = [39, 174, 245]
+        segmented[mask_bare > 0] = [166, 166, 149]
         return segmented
