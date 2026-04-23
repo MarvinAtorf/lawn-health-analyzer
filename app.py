@@ -39,17 +39,18 @@ if city:
                 city,
                 date.strftime("%Y-%m-%d")
             )
-        except ValueError as e:
-            st.error(f"❌ {e}")
+        except Exception as e:
+            st.error(f"❌ Stadt nicht gefunden: {e}")
 
-    current_weather = st.session_state['weather_data']
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Niederschlag (7 Tage)", f"{current_weather['precipitation_total']}mm")
-    with col2:
-        st.metric("Temperatur", f"{current_weather['temperature_avg']}°C")
-    with col3:
-        st.metric("Jahreszeit", current_weather['season'])
+    if st.session_state['weather_data'] is not None:
+        current_weather = st.session_state['weather_data']
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Niederschlag (7 Tage)", f"{current_weather['precipitation_total']}mm")
+        with col2:
+            st.metric("Temperatur", f"{current_weather['temperature_avg']}°C")
+        with col3:
+            st.metric("Jahreszeit", current_weather['season'])
 
 recently_mowed = st.checkbox("🌿 Rasen wurde kürzlich gemäht")
 file = st.file_uploader("Video hochladen", type=["mp4", "mov"])
