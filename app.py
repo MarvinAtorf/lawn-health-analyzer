@@ -33,11 +33,15 @@ date = st.date_input("📅 Datum des Videos")
 
 if city:
     if st.session_state['weather_data'] is None:
-        weather_service = WeatherService()
-        st.session_state['weather_data'] = weather_service.get_weather_for_city(
-            city,
-            date.strftime("%Y-%m-%d")
-        )
+        try:
+            weather_service = WeatherService()
+            st.session_state['weather_data'] = weather_service.get_weather_for_city(
+                city,
+                date.strftime("%Y-%m-%d")
+            )
+        except ValueError as e:
+            st.error(f"❌ {e}")
+
     current_weather = st.session_state['weather_data']
     col1, col2, col3 = st.columns(3)
     with col1:
