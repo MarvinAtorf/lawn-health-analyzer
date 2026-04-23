@@ -18,6 +18,8 @@ if 'recommendations' not in st.session_state:
 if 'weather_data' not in st.session_state:
     st.session_state['weather_data'] = None
 
+
+
 load_dotenv()
 api_key = os.getenv("ANTHROPIC_API_KEY")
 llm = ClaudeServiceSync(api_key=api_key)
@@ -30,11 +32,13 @@ city = st.text_input("🏙️ Stadt eingeben", placeholder="z.b. Hegensdorf")
 date = st.date_input("📅 Datum des Videos")
 
 if city:
-    weather_service = WeatherService()
-    current_weather = weather_service.get_weather_for_city(
-        city,
-        date.strftime("%Y-%m-%d")
-    )
+    if st.session_state['weather_data'] is None:
+        weather_service = WeatherService()
+        st.session_state['weather_data'] = weather_service.get_weather_for_city(
+            city,
+            date.strftime("%Y-%m-%d")
+        )
+    current_weather = st.session_state['weather_data']
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric("Niederschlag (7 Tage)", f"{current_weather['precipitation_total']}mm")
@@ -43,6 +47,7 @@ if city:
     with col3:
         st.metric("Jahreszeit", current_weather['season'])
 
+recently_mowed = st.checkbox("🌿 Rasen wurde kürzlich gemäht")
 file = st.file_uploader("Video hochladen", type=["mp4", "mov"])
 
 if file is not None:
@@ -62,10 +67,12 @@ if file is not None:
             analyzer = LawnAnalyzer()
             st.session_state['analysis_data'] = analyzer.analyze_frames(frames, grass_detector)
 
+
         with st.spinner("Greenkeeper analysiert..."):
             st.session_state['recommendations'] = bot.get_recommendations(
                 st.session_state['analysis_data'],
-                st.session_state['weather_data']
+                st.session_state['weather_data'],
+                recently_mowed
             )
 
 if st.session_state['analysis_data'] is not None:

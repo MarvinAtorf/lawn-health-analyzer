@@ -25,8 +25,15 @@ class LawnVisualizer:
 
         with col2:
             st.subheader("Segmentiert")
-            st.image(segmented_frame)
+            segmented_rgb = cv2.cvtColor(segmented_frame, cv2.COLOR_BGR2RGB)
+            st.image(segmented_rgb)
 
+            st.markdown("""
+            🟢 **Gesund**  
+            🟠 **Trockenstress**  
+            ⚪ **Kahle Stellen/Moos**  
+            ⬛ **Kein Rasen (CNN)**  
+            """)
 
     def show_metrics(self, analysis_data: dict):
         col1, col2, col3, col4 = st.columns(4)
@@ -56,7 +63,7 @@ class LawnVisualizer:
         segmented = np.zeros_like(frame)
         segmented[mask_healthy > 0] = [46, 204, 113]
         segmented[mask_healthy > 0] = [46, 204, 113]
-        segmented[mask_stress > 0] = [39, 174, 245]
+        segmented[mask_stress > 0] = [0, 165, 255]  # Orange in BGR
         segmented[mask_bare > 0] = [166, 166, 149]
         return segmented
 

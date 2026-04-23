@@ -27,6 +27,8 @@ class LawnAnalyzer:
             if grass_detector is not None:
                 grass_mask = grass_detector.predict(frame)
                 hsv[grass_mask == 0] = 0
+                shadow_mask = hsv[:, :, 2] < 60  # V < 60 = zu dunkel
+                hsv[shadow_mask] = 0  # Schatten ignorieren
 
             mask_healthy = cv2.inRange(hsv, lower_healthy, upper_healthy)
             mask_stress = cv2.inRange(hsv, lower_stress, upper_stress)

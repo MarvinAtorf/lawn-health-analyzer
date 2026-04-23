@@ -5,7 +5,7 @@ class WeatherService:
 
     def get_coordinates(self, city: str) -> dict:
         url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=de"
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         data = response.json()
 
         result = data["results"][0]
@@ -26,7 +26,7 @@ class WeatherService:
             f"&start_date={start_date}&end_date={date}"
             f"&timezone=Europe/Berlin"
         )
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         data = response.json()
 
         return {
