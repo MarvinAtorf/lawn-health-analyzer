@@ -5,3 +5,5 @@ matplotlib
 anthropic
 python-dotenv
 pillow
+torch
+torchvision
