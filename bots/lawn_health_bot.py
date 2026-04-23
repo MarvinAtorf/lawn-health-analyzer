@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from services.claude_sync import ClaudeServiceSync
 
 class LawnHealthBot:
@@ -31,11 +32,32 @@ class LawnHealthBot:
     - Gib nur Empfehlungen, die realistisch umsetzbar sind
     - Maximal 300–400 Wörter"""
 
-    def get_recommendations(self, analysis_data: dict) -> str:
+    def get_recommendations(self, analysis_data: dict, weather_data: dict) -> str:
+        start_date = datetime.strptime(weather_data["date"], "%Y-%m-%d") - timedelta(days=6)
+        days = [(start_date + timedelta(days=i)).strftime("%A") for i in range(7)]
+
+        # Deutsche Wochentage
+        day_translation = {
+            "Monday": "Montag", "Tuesday": "Dienstag", "Wednesday": "Mittwoch",
+            "Thursday": "Donnerstag", "Friday": "Freitag", "Saturday": "Samstag",
+            "Sunday": "Sonntag"
+        }
+
+        precipitation_by_day = "\n".join([
+            f"    {day_translation[day]}, {(start_date + timedelta(days=i)).strftime('%d.%m')}: {rain}mm"
+            for i, (day, rain) in enumerate(zip(days, weather_data["precipitation_daily"]))
+        ])
         message = f"""
-        Health Score: {analysis_data["health_score"]}/100
-        Gesund: {analysis_data["healthy_pct"]}%
-        Trockenstress: {analysis_data["stress_pct"]}%
-        Kahle Stellen/Moos: {analysis_data["bare_pct"]}%
+    Health Score: {analysis_data["health_score"]}/100
+    Gesund: {analysis_data["healthy_pct"]}%
+    Trockenstress: {analysis_data["stress_pct"]}%
+    Kahle Stellen/Moos: {analysis_data["bare_pct"]}%
+    
+    Wetterdaten der letzten 7 Tage:
+    Standort: {weather_data["city"]}
+    Jahreszeit: {weather_data["season"]}
+    Gesamtniederschlag: {weather_data["precipitation_total"]}mm
+    Durchschnittstemperatur: {weather_data["temperature_avg"]}°C
+    Niederschlag pro Tag: {precipitation_by_day}
         """
         return self.llm.chat(message, self.system_prompt, [])
