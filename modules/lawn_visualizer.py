@@ -3,6 +3,9 @@ import cv2
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+
 
 class LawnVisualizer:
     def show_frames(self, original_frame: np.ndarray, segmented_frame: np.ndarray):
@@ -56,3 +59,31 @@ class LawnVisualizer:
         segmented[mask_stress > 0] = [39, 174, 245]
         segmented[mask_bare > 0] = [166, 166, 149]
         return segmented
+
+
+    def show_weather_chart(self, weather_data: dict):
+
+        start_date = datetime.strptime(weather_data["date"], "%Y-%m-%d") - timedelta(days=6)
+        dates = [(start_date + timedelta(days=i)).strftime("%d.%m") for i in range(7)]
+
+        fig, axes = plt.subplots(3, 1, figsize=(10, 8))
+
+        # Niederschlag
+        axes[0].bar(dates, weather_data["precipitation_daily"], color="#3498db")
+        axes[0].set_title("Niederschlag (mm)")
+        axes[0].set_ylabel("mm")
+
+        # Temperatur
+        axes[1].plot(dates, weather_data["temperature_daily"], color="#e74c3c", marker="o")
+        axes[1].set_title("Temperatur (°C)")
+        axes[1].set_ylabel("°C")
+
+        # Sonnenschein
+        sunshine_hours = [s / 3600 for s in weather_data["sunshine_daily"]]
+        axes[2].bar(dates, sunshine_hours, color="#f39c12")
+        axes[2].set_title("Sonnenschein (Stunden)")
+        axes[2].set_ylabel("h")
+
+        plt.tight_layout()
+        st.pyplot(fig)
+        plt.close(fig)
