@@ -3,20 +3,21 @@ from datetime import datetime, timedelta
 
 class WeatherService:
 
-    def get_coordinates(self, city: str) -> dict:
-            url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=de"
-            response = requests.get(url, timeout=10)
-            data = response.json()
+    def get_coordinates(self, plz: str) -> dict:
+        url = f"https://api.zippopotam.us/de/{plz}"
+        response = requests.get(url, timeout=10)
 
-            if "results" not in data or len(data["results"]) == 0:
-                raise ValueError(f"Stadt '{city}' nicht gefunden.")
+        if response.status_code != 200:
+            raise ValueError(f"PLZ '{plz}' nicht gefunden.")
 
-            result = data["results"][0]
-            return {
-                "lat": result["latitude"],
-                "lon": result["longitude"],
-                "city": result["name"]
-            }
+        data = response.json()
+        place = data["places"][0]
+
+        return {
+            "lat": float(place["latitude"]),
+            "lon": float(place["longitude"]),
+            "city": place["place name"]
+        }
 
     def get_weather(self, lat: float, lon: float, date: str) -> dict:
         start_date = datetime.strptime(date, "%Y-%m-%d") - timedelta(days=6)

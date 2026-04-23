@@ -29,7 +29,7 @@ grass_detector = GrassDetector(model_path="model/grass_detector.pth")
 
 st.title("🌱 Lawn Health Analyzer")
 
-city = st.text_input("🏙️ Stadt eingeben", placeholder="z.b. Hegensdorf")
+city = st.text_input("📮 PLZ eingeben", placeholder="z.B. 33142")
 date = st.date_input("📅 Datum des Videos")
 
 if city:
@@ -49,9 +49,9 @@ if city:
         current_weather = st.session_state['weather_data']
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Niederschlag (7 Tage)", f"{current_weather['precipitation_total']}mm")
-        with col2:
-            st.metric("Temperatur", f"{current_weather['temperature_avg']}°C")
+            st.metric("Niederschlag (7 Tage)", f"{current_weather['precipitation_total']:.1f}mm")
+            with col2:
+                st.metric("Temperatur", f"{current_weather['temperature_avg']}°C")
         with col3:
             st.metric("Jahreszeit", current_weather['season'])
 
