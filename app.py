@@ -18,7 +18,8 @@ if 'recommendations' not in st.session_state:
 if 'weather_data' not in st.session_state:
     st.session_state['weather_data'] = None
 
-
+if 'last_city' not in st.session_state:
+    st.session_state['last_city'] = None
 
 load_dotenv()
 api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -32,7 +33,8 @@ city = st.text_input("🏙️ Stadt eingeben", placeholder="z.b. Hegensdorf")
 date = st.date_input("📅 Datum des Videos")
 
 if city:
-    if st.session_state['weather_data'] is None:
+    if st.session_state['weather_data'] is None or st.session_state['last_city'] != city:
+        st.session_state['last_city'] = city
         try:
             weather_service = WeatherService()
             st.session_state['weather_data'] = weather_service.get_weather_for_city(
@@ -41,6 +43,7 @@ if city:
             )
         except Exception as e:
             st.error(f"❌ Stadt nicht gefunden: {e}")
+            st.session_state['weather_data'] = None
 
     if st.session_state['weather_data'] is not None:
         current_weather = st.session_state['weather_data']
@@ -71,7 +74,6 @@ if file is not None:
         with st.spinner("Rasen wird analysiert..."):
             analyzer = LawnAnalyzer()
             st.session_state['analysis_data'] = analyzer.analyze_frames(frames, grass_detector)
-
 
         with st.spinner("Greenkeeper analysiert..."):
             st.session_state['recommendations'] = bot.get_recommendations(
