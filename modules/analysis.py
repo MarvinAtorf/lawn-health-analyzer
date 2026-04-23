@@ -3,7 +3,7 @@ import numpy as np
 
 class LawnAnalyzer:
 
-    def analyze_frames(self, frames: list) -> dict:
+    def analyze_frames(self, frames: list, grass_detector=None) -> dict:
         total_healthy = 0
         total_stress = 0
         total_bare = 0
@@ -23,6 +23,11 @@ class LawnAnalyzer:
         for frame in frames:
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+            # CNN Maske anwenden (optional)
+            if grass_detector is not None:
+                grass_mask = grass_detector.predict(frame)
+                hsv[grass_mask == 0] = 0
+
             mask_healthy = cv2.inRange(hsv, lower_healthy, upper_healthy)
             mask_stress = cv2.inRange(hsv, lower_stress, upper_stress)
             mask_bare = cv2.inRange(hsv, lower_bare, upper_bare)
@@ -31,7 +36,6 @@ class LawnAnalyzer:
             all_masks_healthy.append(mask_healthy)
             all_masks_stress.append(mask_stress)
             all_masks_bare.append(mask_bare)
-
 
             total_healthy += cv2.countNonZero(mask_healthy)
             total_stress += cv2.countNonZero(mask_stress)

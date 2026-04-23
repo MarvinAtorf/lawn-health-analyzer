@@ -7,6 +7,7 @@ from modules.video_processor import VideoProcessor
 from modules.analysis import LawnAnalyzer
 from modules.lawn_visualizer import LawnVisualizer
 from modules.weather_service import WeatherService
+from modules.grass_detector import GrassDetector
 
 if 'analysis_data' not in st.session_state:
     st.session_state['analysis_data'] = None
@@ -21,6 +22,7 @@ load_dotenv()
 api_key = os.getenv("ANTHROPIC_API_KEY")
 llm = ClaudeServiceSync(api_key=api_key)
 bot = LawnHealthBot(llm=llm)
+grass_detector = GrassDetector(model_path="model/grass_detector.pth")
 
 st.title("🌱 Lawn Health Analyzer")
 
@@ -35,11 +37,11 @@ if city:
     )
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("🌧️ Niederschlag (7 Tage)", f"{current_weather['precipitation_total']}mm")
+        st.metric("Niederschlag (7 Tage)", f"{current_weather['precipitation_total']}mm")
     with col2:
-        st.metric("🌡️ Temperatur", f"{current_weather['temperature_avg']}°C")
+        st.metric("Temperatur", f"{current_weather['temperature_avg']}°C")
     with col3:
-        st.metric("🌱 Jahreszeit", current_weather['season'])
+        st.metric("Jahreszeit", current_weather['season'])
 
 file = st.file_uploader("Video hochladen", type=["mp4", "mov"])
 
@@ -58,7 +60,7 @@ if file is not None:
 
         with st.spinner("Rasen wird analysiert..."):
             analyzer = LawnAnalyzer()
-            st.session_state['analysis_data'] = analyzer.analyze_frames(frames)
+            st.session_state['analysis_data'] = analyzer.analyze_frames(frames, grass_detector)
 
         with st.spinner("Greenkeeper analysiert..."):
             st.session_state['recommendations'] = bot.get_recommendations(
@@ -73,6 +75,7 @@ if st.session_state['analysis_data'] is not None:
     visualizer = LawnVisualizer()
     visualizer.show_metrics(analysis_data)
     visualizer.show_chart(analysis_data)
+    visualizer.show_weather_chart(st.session_state['weather_data'])
 
     frame_index = st.slider(
         "Frame auswählen",
@@ -88,4 +91,3 @@ if st.session_state['analysis_data'] is not None:
     )
     visualizer.show_frames(analysis_data['all_frames'][frame_index], segmented)
     st.write(recommendations)
-    visualizer.show_weather_chart(st.session_state['weather_data'])
