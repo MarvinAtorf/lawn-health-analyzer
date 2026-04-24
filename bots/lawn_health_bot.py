@@ -36,7 +36,7 @@ Constraints:
 - Das Video kann Nicht-Rasen Bereiche enthalten (Bäume, Gebäude, Schatten). Berücksichtige das bei deiner Bewertung und weise den User darauf hin.
 - Schatten können die Trockenstress-Werte erhöhen. Berücksichtige das bei deiner Bewertung."""
 
-    def get_recommendations(self, analysis_data: dict, weather_data: dict, recently_mowed: bool = False) -> str:
+    def get_recommendations(self, analysis_data: dict, weather_data: dict, recently_mowed: bool = False, sauerer_boden: bool = False) -> str:
         from datetime import datetime, timedelta
 
         start_date = datetime.strptime(weather_data["date"], "%Y-%m-%d") - timedelta(days=6)
@@ -53,7 +53,8 @@ Constraints:
             for i, (day, rain) in enumerate(zip(days, weather_data["precipitation_daily"]))
         ])
 
-        mowed_hint = "Ja – Trockenstress-Werte könnten erhöht sein." if recently_mowed else "Nein"
+        mowed_hint = "Ja – Trockenstress-Werte könnten erhöht sein." if recently_mowed else ""
+        sauerer_boden_hint = "Ja – saurer Boden erhöht förder Mosswachstum." if sauerer_boden else ""
 
         message = f"""
         Health Score: {analysis_data["health_score"]}/100
@@ -71,6 +72,7 @@ Constraints:
 {precipitation_by_day}
 
         Kürzlich gemäht: {mowed_hint}
+        Boden ist sauer: {sauerer_boden_hint}
         """
         return self.llm.chat(message, self.system_prompt, [])
 

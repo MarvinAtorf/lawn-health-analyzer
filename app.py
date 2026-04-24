@@ -37,30 +37,33 @@ st.title("🌱 Lawn Health Analyzer")
 city = st.text_input("📮 PLZ eingeben", placeholder="z.B. 33142")
 date = st.date_input("📅 Datum des Videos")
 
-if city:
-    if st.session_state['weather_data'] is None or st.session_state['last_city'] != city:
-        st.session_state['last_city'] = city
-        try:
-            weather_service = WeatherService()
-            st.session_state['weather_data'] = weather_service.get_weather_for_city(
-                city,
-                date.strftime("%Y-%m-%d")
-            )
-        except Exception as e:
-            st.error(f"❌ Stadt nicht gefunden: {e}")
-            st.session_state['weather_data'] = None
+if not city:
+    city = "33142"
 
-    if st.session_state['weather_data'] is not None:
-        current_weather = st.session_state['weather_data']
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Niederschlag gesamt (7 Tage)", f"{current_weather['precipitation_total']:.1f}mm")
-            with col2:
-                st.metric("Ø Temperatur (7 Tage)", f"{current_weather['temperature_avg']}°C")
-        with col3:
-            st.metric("Jahreszeit", current_weather['season'])
+if st.session_state['weather_data'] is None or st.session_state['last_city'] != city:
+    st.session_state['last_city'] = city
+    try:
+        weather_service = WeatherService()
+        st.session_state['weather_data'] = weather_service.get_weather_for_city(
+            city,
+            date.strftime("%Y-%m-%d")
+        )
+    except Exception as e:
+        st.error(f"❌ PLZ nicht gefunden: {e}")
+        st.session_state['weather_data'] = None
+
+if st.session_state['weather_data'] is not None:
+    current_weather = st.session_state['weather_data']
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Niederschlag gesamt (7 Tage)", f"{current_weather['precipitation_total']:.1f}mm")
+    with col2:
+        st.metric("Ø Temperatur (7 Tage)", f"{current_weather['temperature_avg']}°C")
+    with col3:
+        st.metric("Jahreszeit", current_weather['season'])
 
 recently_mowed = st.checkbox("🌿 Rasen wurde kürzlich gemäht")
+sauerer_boden = st.checkbox("🌿 Boden ist sauer")
 file = st.file_uploader("Video hochladen", type=["mp4", "mov"])
 
 if file is not None:
@@ -91,7 +94,8 @@ if file is not None:
             st.session_state['recommendations'] = bot.get_recommendations(
                 st.session_state['analysis_data'],
                 st.session_state['weather_data'],
-                recently_mowed
+                recently_mowed,
+                sauerer_boden
             )
 
 if st.session_state['analysis_data'] is not None:
