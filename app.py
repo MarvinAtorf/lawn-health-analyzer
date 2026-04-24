@@ -8,6 +8,7 @@ from modules.analysis import LawnAnalyzer
 from modules.lawn_visualizer import LawnVisualizer
 from modules.weather_service import WeatherService
 from modules.grass_detector import GrassDetector
+import cv2
 
 if 'analysis_data' not in st.session_state:
     st.session_state['analysis_data'] = None
@@ -52,9 +53,9 @@ if city:
         current_weather = st.session_state['weather_data']
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Niederschlag (7 Tage)", f"{current_weather['precipitation_total']:.1f}mm")
+            st.metric("Niederschlag gesamt (7 Tage)", f"{current_weather['precipitation_total']:.1f}mm")
             with col2:
-                st.metric("Temperatur", f"{current_weather['temperature_avg']}°C")
+                st.metric("Ø Temperatur (7 Tage)", f"{current_weather['temperature_avg']}°C")
         with col3:
             st.metric("Jahreszeit", current_weather['season'])
 
@@ -62,6 +63,13 @@ recently_mowed = st.checkbox("🌿 Rasen wurde kürzlich gemäht")
 file = st.file_uploader("Video hochladen", type=["mp4", "mov"])
 
 if file is not None:
+    processor = VideoProcessor()
+    first_frame = processor.get_first_frame(file)
+    rgb_frame = cv2.cvtColor(first_frame, cv2.COLOR_BGR2RGB)
+    st.divider()
+    st.text("Vorschau:")
+    st.image(rgb_frame, caption="Vorschau", use_container_width=True)
+
     if st.button("🔍 Analyse starten"):
         with st.spinner("🌤️ Wetterdaten werden geladen..."):
             weather_service = WeatherService()

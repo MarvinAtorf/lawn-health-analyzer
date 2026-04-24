@@ -26,3 +26,26 @@ class VideoProcessor:
         cap.release()
         os.remove(tmp_path)
         return frame_list
+
+    def _save_uploaded_file(self, video_file) -> str:
+        import tempfile
+        suffix = f".{video_file.name.split('.')[-1]}"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            tmp.write(video_file.getbuffer())
+            return tmp.name
+
+    def get_first_frame(self, video_file) -> np.ndarray:
+        video_path = self._save_uploaded_file(video_file)
+
+        try:
+            cap = cv2.VideoCapture(video_path)
+            ret, frame = cap.read()
+            cap.release()
+
+            if not ret:
+                raise ValueError("Erster Frame konnte nicht geladen werden")
+
+            return frame
+        finally:
+            if os.path.exists(video_path):
+                os.remove(video_path)
