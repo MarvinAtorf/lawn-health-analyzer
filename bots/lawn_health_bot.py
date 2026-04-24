@@ -73,3 +73,14 @@ Constraints:
         Kürzlich gemäht: {mowed_hint}
         """
         return self.llm.chat(message, self.system_prompt, [])
+
+    def ask_followup(self, question: str, report: str, history: list) -> str:
+        system = f"""Du bist ein erfahrener Greenkeeper.
+
+    Kontext – Greenkeeper-Report der aktuellen Rasenanalyse:
+    {report}
+
+    Beantworte Folgefragen basierend auf diesem Report. 
+    Bleibe konkret, praxisnah und auf Deutsch."""
+
+        return self.llm.chat(question, system, history)

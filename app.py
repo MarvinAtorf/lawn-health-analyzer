@@ -21,6 +21,9 @@ if 'weather_data' not in st.session_state:
 if 'last_city' not in st.session_state:
     st.session_state['last_city'] = None
 
+if 'chat_history' not in st.session_state:
+    st.session_state['chat_history'] = []
+
 load_dotenv()
 api_key = os.getenv("ANTHROPIC_API_KEY")
 llm = ClaudeServiceSync(api_key=api_key)
@@ -105,3 +108,32 @@ if st.session_state['analysis_data'] is not None:
     )
     visualizer.show_frames(analysis_data['all_frames'][frame_index], segmented)
     st.write(recommendations)
+    st.divider()
+    st.subheader("💬 Fragen an den Greenkeeper")
+
+    # Chat History anzeigen
+    for message in st.session_state['chat_history']:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+
+    # User Input
+    if prompt := st.chat_input("Stelle eine Frage zum Greenkeeper-Report..."):
+        # User Message anzeigen
+        with st.chat_message("user"):
+            st.write(prompt)
+
+        # Zur History hinzufügen
+        st.session_state['chat_history'].append({"role": "user", "content": prompt})
+
+        # Claude aufrufen mit Report als Kontext
+        with st.chat_message("assistant"):
+            with st.spinner("Greenkeeper antwortet..."):
+                response = bot.ask_followup(
+                    prompt,
+                    recommendations,
+                    st.session_state['chat_history']
+                )
+            st.write(response)
+
+        # Antwort zur History hinzufügen
+        st.session_state['chat_history'].append({"role": "assistant", "content": response})
