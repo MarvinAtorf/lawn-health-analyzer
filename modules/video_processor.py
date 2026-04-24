@@ -35,6 +35,7 @@ class VideoProcessor:
             return tmp.name
 
     def get_first_frame(self, video_file) -> np.ndarray:
+        video_file.seek(0)  # ← Datei zurücksetzen!
         video_path = self._save_uploaded_file(video_file)
 
         try:
