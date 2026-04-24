@@ -9,6 +9,7 @@ from modules.lawn_visualizer import LawnVisualizer
 from modules.weather_service import WeatherService
 from modules.grass_detector import GrassDetector
 import cv2
+from modules.pdf_exporter import PDFExporter
 
 if 'analysis_data' not in st.session_state:
     st.session_state['analysis_data'] = None
@@ -116,6 +117,23 @@ if st.session_state['analysis_data'] is not None:
     )
     visualizer.show_frames(analysis_data['all_frames'][frame_index], segmented)
     st.write(recommendations)
+    st.divider()
+    if st.button("📄 PDF exportieren"):
+        pdf_exporter = PDFExporter()
+        pdf_bytes = pdf_exporter.export(
+            analysis_data,
+            st.session_state['weather_data'],
+            recommendations,
+            analysis_data['all_frames'][0],
+            segmented,
+            date.strftime("%d.%m.%Y")
+        )
+        st.download_button(
+            label="📥 PDF herunterladen",
+            data=pdf_bytes,
+            file_name="lawn_health_report.pdf",
+            mime="application/pdf"
+        )
     st.divider()
     st.subheader("💬 Fragen an den Greenkeeper")
 
